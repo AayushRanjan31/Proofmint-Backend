@@ -5,6 +5,7 @@ const sequelize = require('./src/models/db');
 const uploadRouter = require('./src/routers/uploadRouter');
 const cookieParser = require('cookie-parser');
 const errorMiddleware = require('./src/middlewares/errorMiddleware');
+const documentRouter = require('./src/routers/documentRouter');
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
@@ -12,7 +13,7 @@ app.use(cookieParser());
 // routers
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/document', uploadRouter);
-
+app.use('/api/v1/documents', documentRouter);
 // error middleware
 app.use(errorMiddleware);
 
