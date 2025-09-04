@@ -7,10 +7,18 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const errorMiddleware = require('./src/middlewares/errorMiddleware');
 const documentRouter = require('./src/routers/documentRouter');
+const rateLimiter = require('./src/middlewares/rateLimiter');
+const logger = require('./src/middlewares/logger');
+
 const app = express();
+
+// applying middleware
 app.use(express.json());
 app.use(cookieParser());
+app.use(logger);
+app.use(rateLimiter);
 
+// cors
 app.use(cors({
   origin: [
     'http://localhost:5174',
@@ -25,6 +33,7 @@ app.use(cors({
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/document', uploadRouter);
 app.use('/api/v1/documents', documentRouter);
+
 // error middleware
 app.use(errorMiddleware);
 
