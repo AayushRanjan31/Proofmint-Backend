@@ -2,6 +2,7 @@ const {
   getDocument,
   getDocumentsByUser,
   verifyDocuments,
+  documentRevoke,
 } = require('../services/documentService');
 
 const getUserDocsController = async (req, res) => {
@@ -46,4 +47,19 @@ const verifyDocument = async (req, res, next)=> {
   }
 };
 
-module.exports = {getUserDocsController, getADocument, verifyDocument};
+const revokeDocument = async (req, res, next)=> {
+  try {
+    const {certificateId} = req.body;
+    if (!certificateId) return next();
+    const updateDocument = await documentRevoke(certificateId);
+    if (!updateDocument) return next();
+    res.status(200).json({
+      status: true,
+      message: 'Successfully revoke the document',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = {getUserDocsController, getADocument, verifyDocument, revokeDocument};

@@ -77,4 +77,20 @@ const previewDocument = async (fileBuffer, mimetype) => {
   return {buffer, mimetype};
 };
 
-module.exports = {getDocumentsByUser, getDocument, verifyDocuments, previewDocument};
+const documentRevoke = async (certificateId)=> {
+  try {
+    const getDocument = await Document.findOne({where: {id: certificateId}});
+    if (!getDocument) throw new Error('There is no document related to this certificate');
+    const [updatedCount] = await Document.update(
+        {status: 'expired'},
+        {where: {id: certificateId}},
+    );
+    if (updatedCount == 0) throw new Error('Cannot revoke document');
+    return getDocument;
+  } catch (err) {
+    throw new Error(err.message);
+  }
+};
+
+module.exports = {getDocumentsByUser,
+  getDocument, verifyDocuments, previewDocument, documentRevoke};
