@@ -1,23 +1,18 @@
 const cloudinary = require('../config/cloudinary');
 const Document = require('../models/document');
 const sharp = require('sharp');
-const uploadService = async (req) => {
+const uploadService = async (buffer, mimeType) => {
   try {
-    let bufferToUpload = req.file.buffer;
+    let bufferToUpload = buffer;
     let resourceType = 'auto';
-    if (req.file.mimetype.startsWith('image/')) {
-      bufferToUpload = await sharp(req.file.buffer)
+
+    if (mimeType.startsWith('image/')) {
+      bufferToUpload = await sharp(buffer)
           .jpeg({quality: 70})
           .toBuffer();
       resourceType = 'image';
     }
-    // PDFs/DOCs
-    if (req.file.mimetype === 'application/pdf') resourceType = 'raw';
-    if (
-      req.file.mimetype === 'application/msword' ||
-      req.file.mimetype ===
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    ) {
+    if (mimeType === 'application/pdf') {
       resourceType = 'raw';
     }
 
@@ -51,20 +46,21 @@ const createDocument = async (metaData)=> {
   return createNewDocument;
 };
 
-const putStampImage = async (userId, documentId, newUrl) => {
+const putStampImage = async (userId, certificateId, newUrl, previewUrl) => {
   try {
     const [count, rows] = await Document.update(
         {
           fileUrl: newUrl,
+          preview: previewUrl,
           status: 'stamped',
         },
         {
-          where: {userId, documentId},
+          where: {userId, id: certificateId},
           returning: true,
         },
     );
     if (count === 0) {
-      throw new Error('No document found for this userId + documentId');
+      throw new Error('No document found for this userId + certificateId');
     }
     return rows[0];
   } catch {
