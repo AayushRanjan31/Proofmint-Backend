@@ -31,4 +31,21 @@ const signupService = async (uniqueId, email, password, firstName, lastName, num
   }
 };
 
-module.exports = {loginService, signupService};
+const passwordChange = async (email, password, newPassword)=> {
+  try {
+    const getUser = await user.findOne({where: {email}});
+    if (!getUser) throw new Error('Cannot find user');
+    const verify = await bcrypt.compare(password, getUser.password);
+    if (!verify) throw new Error('invalid credentials');
+    const hasPassword = await bcrypt.hash(newPassword, 10);
+    const updateUserPassword = await user.update(
+        {password: hasPassword},
+        {where: {email: email}},
+    );
+    return updateUserPassword;
+  } catch (err) {
+    throw new Error(err.message);
+  }
+};
+
+module.exports = {loginService, signupService, passwordChange};
