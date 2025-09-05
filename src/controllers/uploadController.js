@@ -1,3 +1,4 @@
+const {previewDocument} = require('../services/documentService');
 const stampDocument = require('../services/qrService');
 const {uploadService, createDocument, putStampImage} = require('../services/uploadService');
 const uploadError = require('../utils/uploadError');
@@ -10,7 +11,7 @@ const uploadFile = async (req, res, next) => {
     if (!req.file) return next();
 
     // Upload buffer to Cloudinary
-    const result = await uploadService(req);
+    const result = await uploadService(req.file.buffer, req.file.mimetype);
     if (!result) return next();
 
     const documentId = uuid();
@@ -38,14 +39,15 @@ const uploadFile = async (req, res, next) => {
 const uploadStamp = async (req, res, next)=> {
   try {
     const {id} = req.user;
-    const {documentId} = req.body;
-    if (!req.file || !documentId) return next();
+    const {certificateId} = req.body;
+    if (!req.file || !certificateId) return next();
 
     // Upload buffer to Cloudinary
-    const result = await uploadService(req);
-    if (!result) return next();
-
-    const modifyDocument = await putStampImage(id, documentId, result.url);
+    const result = await uploadService(req.file.buffer, req.file.mimetype);
+    const {buffer, mimetype} = await previewDocument(req.file.buffer, req.file.mimetype);
+    const uploadPreview = await uploadService(buffer, mimetype);
+    if (!result || !uploadPreview) return next();
+    const modifyDocument = await putStampImage(id, certificateId, result.url, uploadPreview.url);
 
     if (!modifyDocument) return next();
     res.status(200).json({
