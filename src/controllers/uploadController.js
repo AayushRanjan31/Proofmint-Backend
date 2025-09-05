@@ -20,7 +20,7 @@ const uploadFile = async (req, res, next) => {
     const metaData =
     {uniqueId: uniqueId, userId: id, title, expiry, fileUrl: result.url,
       documentId: documentId, issuer: username, qrCode: generateQrCode};
-    await createDocument(metaData);
+    const document = await createDocument(metaData);
 
     res.status(200).json({
       status: true,
@@ -30,6 +30,7 @@ const uploadFile = async (req, res, next) => {
         id: result.public_id,
         documentId: documentId,
         qrCode: generateQrCode,
+        certificateId: document.id,
       },
     });
   } catch (err) {
