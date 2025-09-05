@@ -1,4 +1,4 @@
-const {loginService, signupService} = require('../services/authService');
+const {loginService, signupService, passwordChange} = require('../services/authService');
 const {inValidUser, missingCredentials, passwordSort} = require('../utils/authError');
 const token = require('../utils/tokenGenerate');
 const {v4: uuid} = require('uuid');
@@ -68,4 +68,20 @@ const logoutController = (req, res)=> {
   });
 };
 
-module.exports = {loginController, signupController, logoutController};
+const changePassword = async (req, res, next) => {
+  try {
+    const {email, password, newPassword} = req.body;
+    if (!newPassword || !email || !password) return next();
+    if (newPassword.length < 8) return passwordSort(res);
+    const updatedPass = await passwordChange(email, password, newPassword);
+    if (updatedPass) {
+      res.status(200).json({
+        status: true,
+        message: 'Password uploaded successfully',
+      });
+    } else next();
+  } catch (err) {
+    next(err);
+  }
+};
+module.exports = {loginController, signupController, logoutController, changePassword};
