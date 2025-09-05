@@ -7,6 +7,7 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const errorMiddleware = require('./src/middlewares/errorMiddleware');
 const documentRouter = require('./src/routers/documentRouter');
+const adminRouter = require('./src/routers/adminRouter');
 const rateLimiter = require('./src/middlewares/rateLimiter');
 const logger = require('./src/middlewares/logger');
 const app = express();
@@ -33,6 +34,7 @@ app.use(cors({
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/document', uploadRouter);
 app.use('/api/v1/documents', documentRouter);
+app.use('/api/v1/admin', adminRouter);
 
 // error middleware
 app.use(errorMiddleware);
