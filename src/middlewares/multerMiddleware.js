@@ -10,14 +10,12 @@ const upload = multer({
       'image/png',
       'image/jpg',
       'application/pdf',
-      'application/msword', // .doc
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
     ];
 
     if (allowedMimes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Only PDF, DOC, DOCX, and image files are allowed'), false);
+      cb(new Error('Only image (jpg, jpeg, png) and PDF files are allowed'), false);
     }
   },
 });

@@ -9,7 +9,6 @@ const errorMiddleware = require('./src/middlewares/errorMiddleware');
 const documentRouter = require('./src/routers/documentRouter');
 const rateLimiter = require('./src/middlewares/rateLimiter');
 const logger = require('./src/middlewares/logger');
-
 const app = express();
 
 // applying middleware
@@ -23,6 +22,7 @@ app.use(cors({
   origin: [
     'http://localhost:5174',
     'http://localhost:5173',
+    'http://localhost:5175',
     'https://ac4087f1a82c.ngrok-free.app',
   ],
   credentials: true,

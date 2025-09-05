@@ -1,6 +1,7 @@
 const {
   getDocument,
   getDocumentsByUser,
+  verifyDocuments,
 } = require('../services/documentService');
 
 const getUserDocsController = async (req, res) => {
@@ -24,4 +25,25 @@ const getADocument = async (req, res) => {
   }
 };
 
-module.exports = {getUserDocsController, getADocument};
+const verifyDocument = async (req, res, next)=> {
+  try {
+    const {documentId} = req.body;
+    if (!documentId) next();
+    const getDocument = await verifyDocuments(documentId);
+    if (!getDocument) {
+      return res.status(404).json({
+        status: false,
+        message: 'There is not document related to this documentId',
+      });
+    }
+    res.status(200).json({
+      status: true,
+      previewUrl: getDocument.preview,
+      verify: getDocument.status,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = {getUserDocsController, getADocument, verifyDocument};
