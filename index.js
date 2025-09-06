@@ -10,6 +10,7 @@ const documentRouter = require('./src/routers/documentRouter');
 const adminRouter = require('./src/routers/adminRouter');
 const rateLimiter = require('./src/middlewares/rateLimiter');
 const logger = require('./src/middlewares/logger');
+
 const app = express();
 
 // applying middleware
