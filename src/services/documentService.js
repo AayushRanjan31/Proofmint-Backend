@@ -85,7 +85,6 @@ const documentRevoke = async (certificateId)=> {
         {status: 'expired'},
         {where: {id: certificateId}},
     );
-    console.log(updatedCount)
     if (updatedCount == 0) throw new Error('Cannot revoke document');
     return getDocument;
   } catch (err) {
