@@ -1,4 +1,4 @@
-const {getAllTheUsers, deleteAUser} = require('../services/adminService');
+const {getAllTheUsers, deleteAUser, allDocument, documentDelete} = require('../services/adminService');
 
 const getAllUser = async (req, res, next)=> {
   try {
@@ -32,5 +32,30 @@ const deleteUser = async (req, res, next)=> {
   }
 };
 
+const getAllDocument = async (req, res, next)=> {
+  try {
+    const allDocs = await allDocument();
+    res.status(200).json({
+      status: true,
+      allDocs,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
-module.exports = {getAllUser, deleteUser};
+const deleteDocument = async (req, res, next) => {
+  try {
+    const {certificateId} = req.body;
+    const deleteDoc = await documentDelete(certificateId);
+    if (!deleteDoc) return next();
+    res.status(200).json({
+      status: true,
+      message: 'Document deleted Successfully',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = {getAllUser, deleteUser, getAllDocument, deleteDocument};
