@@ -8,6 +8,7 @@ const getAllTheUsers = async ()=> {
       lastName: ele.lastName,
       number: ele.number,
       email: ele.email,
+      role: ele.role,
     };
     return user;
   });
