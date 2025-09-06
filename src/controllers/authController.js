@@ -113,6 +113,7 @@ const verifyOpt = async (req, res, next) => {
 const changePassword = async (req, res, next) => {
   try {
     const {email, newPassword} = req.body;
+    if (newPassword.length < 8) return passwordSort(res);
     const passChange = await passwordChange(email, newPassword);
     if (!passChange) return next();
     res.status(200).json({
