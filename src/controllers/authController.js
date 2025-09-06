@@ -14,7 +14,6 @@ const loginController = async (req, res)=> {
   if (!validUser) return inValidUser(res);
 
   const userToken =await token(validUser.id); // generated the token
-  console.log(userToken);
 
   // setting the cookie
   res.cookie('token', userToken, {
