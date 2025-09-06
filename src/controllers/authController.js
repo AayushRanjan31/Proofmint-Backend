@@ -2,6 +2,7 @@ const {loginService, signupService, passwordUpdate, passwordForgot, verifyThroug
 const {inValidUser, missingCredentials, passwordSort} = require('../utils/authError');
 const token = require('../utils/tokenGenerate');
 const {v4: uuid} = require('uuid');
+const config = require('../config/config');
 const loginController = async (req, res)=> {
   const {email, password} = req.body;
 
@@ -12,14 +13,15 @@ const loginController = async (req, res)=> {
   const validUser = await loginService(email, password);
   if (!validUser) return inValidUser(res);
 
-  const userToken = token(validUser.id); // generated the token
+  const userToken =await token(validUser.id); // generated the token
+  console.log(userToken);
 
   // setting the cookie
   res.cookie('token', userToken, {
-    httpOnly: true,
-    secure: true,
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    httpOnly: config.cookies == 'development',
     sameSite: 'none',
-    maxAge: 60 * 60 * 1000,
+    secure: true,
   });
 
   res.status(200).json({
