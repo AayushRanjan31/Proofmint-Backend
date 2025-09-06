@@ -2,7 +2,7 @@ const limiterStore = {}; // Storing request time
 
 const rateLimiter = (req, res, next)=> {
   const totalHr = 60 * 60 * 1000;
-  const maxReq = 100; // allowing 100 request
+  const maxReq = 500; // allowing 100 request
   const ipAddr = req.ip;
   const currTime = Date.now();
   // putting a empty array
