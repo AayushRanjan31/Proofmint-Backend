@@ -30,6 +30,7 @@
     "morgan": "^1.10.1",
     "multer": "^2.0.2",
     "node-fetch": "^2.7.0",
+    "nodemailer": "^7.0.6",
     "pdf-lib": "^1.17.1",
     "pg": "^8.16.3",
     "pg-hstore": "^2.3.4",

@@ -1,4 +1,4 @@
-const {loginService, signupService, passwordChange} = require('../services/authService');
+const {loginService, signupService, passwordUpdate, passwordForgot, verifyThroughOpt, passwordChange} = require('../services/authService');
 const {inValidUser, missingCredentials, passwordSort} = require('../utils/authError');
 const token = require('../utils/tokenGenerate');
 const {v4: uuid} = require('uuid');
@@ -68,12 +68,12 @@ const logoutController = (req, res)=> {
   });
 };
 
-const changePassword = async (req, res, next) => {
+const updatePassword = async (req, res, next) => {
   try {
     const {email, password, newPassword} = req.body;
     if (!newPassword || !email || !password) return next();
     if (newPassword.length < 8) return passwordSort(res);
-    const updatedPass = await passwordChange(email, password, newPassword);
+    const updatedPass = await passwordUpdate(email, password, newPassword);
     if (updatedPass) {
       res.status(200).json({
         status: true,
@@ -84,4 +84,44 @@ const changePassword = async (req, res, next) => {
     next(err);
   }
 };
-module.exports = {loginController, signupController, logoutController, changePassword};
+const forgotPassword = async (req, res, next)=> {
+  try {
+    const {email} = req.body;
+    const sendOtp = await passwordForgot(email);
+    if (!sendOtp) return next();
+    res.status(200).json({
+      status: true,
+      message: 'OTP sent to your email',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+const verifyOpt = async (req, res, next) => {
+  try {
+    const {email, otp} = req.body;
+    const verify = await verifyThroughOpt(email, otp);
+    if (!verify) return next();
+    res.status(200).json({
+      status: true,
+      message: 'Opt successfully verified',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+const changePassword = async (req, res, next) => {
+  try {
+    const {email, newPassword} = req.body;
+    const passChange = await passwordChange(email, newPassword);
+    if (!passChange) return next();
+    res.status(200).json({
+      status: true,
+      message: 'Password change successfully',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+module.exports = {loginController, signupController,
+  logoutController, updatePassword, forgotPassword, verifyOpt, changePassword};

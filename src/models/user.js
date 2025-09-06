@@ -23,6 +23,10 @@ const User = sequelize.define('User', {
       isNumeric: true,
     },
   },
+  otp: {
+    type: DataTypes.STRING,
+    defaultValue: null,
+  },
   email: {
     type: DataTypes.STRING,
     allowNull: false,
