@@ -1,7 +1,7 @@
 const QRCode = require('qrcode');
-
+const config = require('../config/config');
 const generateQRCode = async (docId) => {
-  const verifyUrl = `https://proofmint.com/verify?docId=${docId}`;
+  const verifyUrl = `${config.qrBase}docId=${docId}`;
   return await QRCode.toDataURL(verifyUrl, {errorCorrectionLevel: 'H'});
 };
 
