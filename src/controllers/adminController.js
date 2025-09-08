@@ -8,6 +8,7 @@ const getAllUser = async (req, res, next)=> {
       users: users,
     });
   } catch (err) {
+    err.statusCode = err.statusCode || 500;
     next(err);
   }
 };
@@ -16,10 +17,9 @@ const deleteUser = async (req, res, next)=> {
   try {
     const id = req.params.id;
     if (!id) {
-      return res.status(404).json({
-        status: false,
-        message: 'id is required',
-      });
+      const error = new Error('id is required');
+      error.statusCode = 400;
+      throw error;
     }
     await deleteAUser(id);
 
@@ -28,6 +28,7 @@ const deleteUser = async (req, res, next)=> {
       message: 'User has deleted successfully',
     });
   } catch (err) {
+    err.statusCode = err.statusCode || 500;
     next(err);
   }
 };
@@ -40,6 +41,7 @@ const getAllDocument = async (req, res, next)=> {
       allDocs,
     });
   } catch (err) {
+    err.statusCode = err.statusCode || 500;
     next(err);
   }
 };
@@ -47,13 +49,23 @@ const getAllDocument = async (req, res, next)=> {
 const deleteDocument = async (req, res, next) => {
   try {
     const {certificateId} = req.body;
+    if (!certificateId) {
+      const error = new Error('certificateId is required');
+      error.statusCode = 400;
+      throw error;
+    }
     const deleteDoc = await documentDelete(certificateId);
-    if (!deleteDoc) return next();
+    if (!deleteDoc) {
+      const error = new Error('Document not found or already deleted');
+      error.statusCode = 404;
+      throw error;
+    }
     res.status(200).json({
       status: true,
       message: 'Document deleted Successfully',
     });
   } catch (err) {
+    err.statusCode = err.statusCode || 500;
     next(err);
   }
 };
