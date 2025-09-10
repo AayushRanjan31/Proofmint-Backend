@@ -51,7 +51,7 @@ const createDocument = async (metaData)=> {
       qrCode: metaData.qrCode,
     });
     return createNewDocument;
-  } catch (err) {
+  } catch {
     const error = new Error('Failed to create document');
     error.statusCode = 500;
     throw error;

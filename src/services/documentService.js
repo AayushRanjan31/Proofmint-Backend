@@ -8,7 +8,7 @@ const getDocumentsByUser = async (userId) => {
       where: {userId},
       order: [['createdAt', 'DESC']],
     });
-  } catch (err) {
+  } catch {
     const error = new Error('Failed to fetch user documents');
     error.statusCode = 500;
     throw error;
@@ -23,7 +23,7 @@ const getDocument = async (userId) => {
     });
     if (!doc) return null;
     return doc;
-  } catch (err) {
+  } catch {
     const error = new Error('Cannot fetch document');
     error.statusCode = 500;
     throw error;
@@ -36,7 +36,7 @@ const verifyDocuments = async (documentId) => {
       where: {documentId},
     });
     return document;
-  } catch (err) {
+  } catch {
     const error = new Error('Cannot get the document');
     error.statusCode = 500;
     throw error;
@@ -51,20 +51,29 @@ const previewDocument = async (fileBuffer, mimetype) => {
 
     if (!isPdf) {
       const meta = await sharp(buffer).metadata();
-      const fontSize = Math.floor(Math.min(meta.width, meta.height) * 0.1);
-      const svg = `<svg width="${meta.width}" height="${meta.height}">
-      <rect width="100%" height="100%" fill="transparent"/>
-        <text 
-          x="50%" 
-          y="50%" 
-          font-size="${fontSize}" 
-          fill="black" 
-          fill-opacity="1" 
-          text-anchor="middle" 
-          dominant-baseline="middle">
-          ${watermark}
-        </text>
-      </svg>`;
+      const fontSize = Math.floor(Math.min(meta.width, meta.height) * 0.05);
+
+      const svg = `
+  <svg width="${meta.width}" height="${meta.height}">
+    <style>
+      text {
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+      }
+    </style>
+    <rect width="100%" height="100%" fill="transparent"/>
+    <text 
+      x="50%" 
+      y="50%" 
+      font-size="${fontSize}" 
+      fill="gray" 
+      fill-opacity="0.25" 
+      text-anchor="middle" 
+      dominant-baseline="middle">
+      ${watermark}
+    </text>
+  </svg>
+`;
 
       buffer = await sharp(buffer)
           .ensureAlpha()
@@ -92,7 +101,7 @@ const previewDocument = async (fileBuffer, mimetype) => {
       mimetype = 'application/pdf';
     }
     return {buffer, mimetype};
-  } catch (err) {
+  } catch {
     const error = new Error('Cannot generate document preview');
     error.statusCode = 500;
     throw error;
