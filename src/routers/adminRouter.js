@@ -2,6 +2,7 @@ const express = require('express');
 const {getAllUser, deleteUser, getAllDocument, deleteDocument} = require('../controllers/adminController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const roleMiddleware = require('../middlewares/roleMiddleware');
+// eslint-disable-next-line new-cap
 const router = express.Router();
 
 router.get('/', authMiddleware, roleMiddleware('admin'), getAllUser);

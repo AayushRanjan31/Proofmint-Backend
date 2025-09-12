@@ -17,7 +17,7 @@ const getAllTheUsers = async ()=> {
     });
 
     return userData;
-  } catch (err) {
+  } catch {
     const error = new Error('Failed to fetch users');
     error.statusCode = 500;
     throw error;
@@ -71,7 +71,7 @@ const allDocument = async ()=> {
       return obj;
     });
     return documents;
-  } catch (err) {
+  } catch {
     const error = new Error('Failed to fetch documents');
     error.statusCode = 500;
     throw error;
