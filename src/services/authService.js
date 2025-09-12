@@ -32,6 +32,7 @@ const signupService = async (uniqueId, email, password, firstName, lastName, num
     const role = userCount === 0 ? 'admin' : 'user';
     const newUser = await user.create({
       id: uniqueId, email, password: hasPassword, firstName, lastName, number, role});
+    await sendEmail(email, 'ProofMint Security', `${firstName}, Your proofmint account is created successfully`);
     return newUser;
   } catch (err) {
     if (err.name === 'SequelizeUniqueConstraintError') {

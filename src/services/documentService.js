@@ -84,19 +84,22 @@ const previewDocument = async (fileBuffer, mimetype) => {
     } else {
       const pdf = await PDFDocument.load(buffer);
       const font = await pdf.embedFont(StandardFonts.HelveticaBold);
+
       pdf.getPages().forEach((page) => {
         const {width, height} = page.getSize();
-        const size = Math.min(width, height) * 0.1;
+        const fontSize = Math.min(width, height) * 0.05;
+        const textWidth = font.widthOfTextAtSize(watermark, fontSize);
+        const textHeight = fontSize;
         page.drawText(watermark, {
-          x: width / 2 - size * 2,
-          y: height / 2,
-          size,
+          x: (width - textWidth) / 2,
+          y: (height - textHeight) / 2,
+          size: fontSize,
           font,
           color: rgb(0, 0, 0),
-          rotate: {degrees: 45},
-          opacity: 0.5,
+          opacity: 0.25,
         });
       });
+
       buffer = await pdf.save();
       mimetype = 'application/pdf';
     }

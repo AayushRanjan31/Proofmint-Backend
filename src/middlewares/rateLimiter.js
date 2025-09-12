@@ -1,7 +1,7 @@
 const limiterStore = {};
 
 const WINDOW_MS = process.env.RATE_LIMIT_WINDOW_MS || 10 * 60 * 1000;
-const MAX_REQUESTS = process.env.RATE_LIMIT_MAX || 20;
+const MAX_REQUESTS = process.env.RATE_LIMIT_MAX || 200;
 
 const rateLimiter = (req, res, next) => {
   const ipAddr = req.ip;
