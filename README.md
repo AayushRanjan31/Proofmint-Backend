@@ -2,7 +2,7 @@
 
 ---
 
-## 🛠 Stack
+## Stack
 
 - **Backend:** Node.js, Express, PostgreSQL, Sequelize  
 
@@ -64,7 +64,7 @@ Features include:
 
 ---
 
-## 📡 API Endpoints
+## API Endpoints
 
 All endpoints are prefixed with `/api/v1`.
 
