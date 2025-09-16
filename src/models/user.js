@@ -16,6 +16,7 @@ const User = sequelize.define('User', {
     allowNull: false,
   },
   number: {
+    // eslint-disable-next-line new-cap
     type: DataTypes.STRING(10),
     allowNull: false,
     validate: {
@@ -40,6 +41,7 @@ const User = sequelize.define('User', {
     allowNull: false,
   },
   role: {
+    // eslint-disable-next-line new-cap
     type: DataTypes.ENUM('user', 'admin'),
     defaultValue: 'user',
   },

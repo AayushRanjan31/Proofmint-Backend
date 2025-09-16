@@ -1,4 +1,4 @@
-const {loginService, signupService, passwordUpdate, passwordForgot, verifyThroughOpt, passwordChange} = require('../services/authService');
+const {loginService, signupService, passwordUpdate, passwordForgot, verifyThroughOpt, passwordChange, verifySignUpOtp, sendSignUpOtp} = require('../services/authService');
 const {inValidUser, missingCredentials, passwordSort} = require('../utils/authError');
 const token = require('../utils/tokenGenerate');
 const {v4: uuid} = require('uuid');
@@ -170,5 +170,47 @@ const changePassword = async (req, res, next) => {
   }
 };
 
-module.exports = {loginController, signupController,
-  logoutController, updatePassword, forgotPassword, verifyOpt, changePassword};
+const verifySignupOtp=async (req, res, next)=>{
+  try {
+    const {email, otp}=req.body;
+    if (!email || !otp) {
+      const err=new Error('Email and OTP are required');
+      err.statusCode=400;
+      throw err;
+    }
+
+    const verify =await verifySignUpOtp(email, otp);
+
+    if (!verify) return next();
+    res.status(200).json({
+      status: true,
+      message: 'OTP veirfied successfully',
+    });
+  } catch (err) {
+    err.statusCode=err.statusCode || 500;
+    next(err);
+  }
+};
+
+const sendSignupOtp =async (req, res, next)=>{
+  try {
+    const {email} =req.body;
+    if (!email) {
+      const err=new Error('Please enter Proper Email');
+      err.statusCode=400;
+      throw err;
+    }
+    const sendOtp=await sendSignUpOtp(email);
+    if (!sendOtp) return next();
+    res.status(200).json({
+      status: true,
+      message: 'Otp sent to email',
+    });
+  } catch (err) {
+    err.statusCode=err.statusCode || 500;
+    next(err);
+  }
+};
+
+module.exports = {loginController, signupController, logoutController, updatePassword,
+  forgotPassword, verifyOpt, changePassword, verifySignupOtp, sendSignupOtp};
