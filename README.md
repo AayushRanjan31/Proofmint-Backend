@@ -112,3 +112,56 @@ All endpoints are prefixed with `/api/v1`.
 |--------|----------------------|-----------------------------------------|---------------|
 | POST   | `/document/upload`    | Upload a document file                  | Yes           |
 | POST   | `/document/stamps`    | Upload a stamp / stamp a document       | Yes           |
+
+
+
+---
+
+## Setup Instructions
+
+### 1. Clone the Repository
+```bash
+git git@gitlab.com:Sanni_kumar/proofmint-backend.git
+cd proofmint-backend
+```
+
+### 2. Install Dependencies
+```
+npm install
+```
+
+### 3. Set up Environment Variables
+```
+PORT=port
+DB_USERNAME=dbUser
+DB_PASSWORD=password
+DB_NAME=dbName
+DB_HOST=host
+DB_DIALECT=dialect
+JWT_SECRET_KEY=jswKey
+CLOUDINARY_CLOUD_NAME=cloudinaryName
+CLOUDINARY_API_KEY=apiKeyCloudinary
+CLOUDINARY_API_SECRET=apiSecretCloudinary
+NODE_ENV=mode
+EMAIL_USER=userEmail
+EMAIL_PASSWORD=emailPasword
+QR_BASE_URL=qrBaseUrl
+```
+
+### 4. Create PostgreSQL Database (Manually)
+
+##### Login to MySQL: 
+```
+psql -U postgres
+```
+##### Create the database: 
+````
+CREATE DATABASE databaseName;
+````
+
+### 5. Start the Server
+```
+npm run dev
+```
+
+---
