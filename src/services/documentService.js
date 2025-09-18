@@ -67,7 +67,7 @@ const previewDocument = async (fileBuffer, mimetype) => {
       y="50%" 
       font-size="${fontSize}" 
       fill="gray" 
-      fill-opacity="0.25" 
+      fill-opacity="0.50" 
       text-anchor="middle" 
       dominant-baseline="middle">
       ${watermark}
@@ -96,7 +96,7 @@ const previewDocument = async (fileBuffer, mimetype) => {
           size: fontSize,
           font,
           color: rgb(0, 0, 0),
-          opacity: 0.25,
+          opacity: 0.50,
         });
       });
 
