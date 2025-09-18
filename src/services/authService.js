@@ -7,7 +7,7 @@ const loginService = async (email, password)=> {
   try {
     const getUser = await user.findOne({where: {email}});
     if (!getUser) {
-      const error = new Error('Invalid credentials');
+      const error = new Error('User Does not exist');
       error.statusCode = 401;
       throw error;
     }
