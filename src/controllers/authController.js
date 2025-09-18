@@ -201,7 +201,12 @@ const sendSignupOtp =async (req, res, next)=>{
       throw err;
     }
     const sendOtp=await sendSignUpOtp(email);
-    if (!sendOtp) return next();
+    if (!sendOtp) {
+      return res.status(409).json({
+        status: false,
+        message: 'User already exists',
+      });
+    };
     res.status(200).json({
       status: true,
       message: 'Otp sent to email',

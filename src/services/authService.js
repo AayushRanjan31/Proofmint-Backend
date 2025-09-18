@@ -138,15 +138,18 @@ const passwordChange = async (email, newPassword)=> {
 const sendSignUpOtp = async (email) => {
   try {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const existingUser = await signup.findOne({where: {email}});
-    if (existingUser) {
+    const existingUserInSignUp = await signup.findOne({where: {email}});
+    const existUser =await user.findOne({where: {email}});
+    if (existUser) {
+      return false;
+    }
+    if (existingUserInSignUp) {
       await signup.update({signUpOtp: otp}, {where: {email}});
     } else {
       await signup.create({email, signUpOtp: otp});
     }
-
-    const user = await signup.findOne({where: {email}});
-    (user.email, user.signUpOtp, otp);
+    const user1 = await signup.findOne({where: {email}});
+    (user1.email, user1.signUpOtp, otp);
 
     await sendEmail(email, 'Your OTP for Sign up', `Your OTP is: ${otp}`);
 

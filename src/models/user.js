@@ -46,7 +46,7 @@ const User = sequelize.define('User', {
     defaultValue: 'user',
   },
 }, {
-  timestamps: true, // disables Sequelize auto timestamps (createdAt/updatedAt)
+  timestamps: true,
 });
 
 module.exports = User;
