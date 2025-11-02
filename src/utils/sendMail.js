@@ -1,23 +1,41 @@
+// services/sendEmailNodemailer.js
 const nodemailer = require('nodemailer');
 const config = require('../config/config');
+
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
   auth: {
-    user: config.userEmail,
-    pass: config.emailPassword,
+    user: config.userEmail,   
+    pass: config.emailPassword,    
   },
+  tls: {
+    rejectUnauthorized: false
+  },
+  connectionTimeout: 20000,
 });
-const sendEmail = async (to, subject, text) => {
+
+transporter.verify()
+  .then(() => console.log('✅ Mail transporter verified'))
+  .catch(err => console.error('❌ Mail transporter verification failed:', err));
+
+const sendEmail = async (to, subject, text, html) => {
   try {
-    await transporter.sendMail({
+    const info = await transporter.sendMail({
       from: config.userEmail,
       to,
       subject,
       text,
+      html,
     });
-    return true;
-  } catch {
-    throw new Error('Error sending email');
+    console.log('Email sent:', info.messageId);
+    return { ok: true, info };
+  } catch (err) {
+    console.error('Nodemailer send error:', err);
+    if (err.response) console.error('Nodemailer response:', err.response);
+    return { ok: false, message: err.message || 'Error sending email', raw: err };
   }
 };
+
 module.exports = sendEmail;
