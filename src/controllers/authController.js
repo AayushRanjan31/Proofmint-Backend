@@ -200,7 +200,9 @@ const sendSignupOtp =async (req, res, next)=>{
       err.statusCode=400;
       throw err;
     }
+    console.log('sending otp')
     const sendOtp=await sendSignUpOtp(email);
+    console.log('otp sent successfully');
     if (!sendOtp) {
       return res.status(409).json({
         status: false,
