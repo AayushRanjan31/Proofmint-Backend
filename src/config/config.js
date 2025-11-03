@@ -9,7 +9,7 @@ module.exports = {
   secretKey: process.env.DB_SECRET_KEY,
   jwtKey: process.env.JWT_SECRET_KEY,
   cookies: process.env.NODE_ENV,
-  userEmail: process.env.EMAIL_USER,
-  emailPassword: process.env.EMAIL_PASSWORD,
+  SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
+  SENDGRID_FROM: process.env.SENDGRID_FROM,
   qrBase: process.env.QR_BASE_URL,
 };
