@@ -20,6 +20,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@sendgrid/mail": "^8.1.0",
     "bcrypt": "^6.0.0",
     "cloudinary": "^2.7.0",
     "cookie-parser": "^1.4.7",
@@ -29,7 +30,6 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.1",
     "multer": "^2.0.2",
-    "node-fetch": "^2.7.0",
     "nodemailer": "^7.0.6",
     "pdf-lib": "^1.17.1",
     "pg": "^8.16.3",
@@ -43,6 +43,7 @@
     "@eslint/js": "^9.34.0",
     "eslint": "^9.34.0",
     "eslint-config-google": "^0.14.0",
-    "globals": "^16.3.0"
+    "globals": "^16.3.0",
+    "nodemon": "^3.1.10"
   }
 }

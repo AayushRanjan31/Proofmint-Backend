@@ -35,6 +35,7 @@ const Document = sequelize.define(
         defaultValue: null,
       },
       status: {
+        // eslint-disable-next-line new-cap
         type: DataTypes.ENUM('uploaded', 'stamped', 'expired'),
         defaultValue: 'uploaded',
       },

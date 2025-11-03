@@ -1,4 +1,5 @@
 const express = require('express');
+// eslint-disable-next-line new-cap
 const router = express.Router();
 const upload = require('../middlewares/multerMiddleware');
 const authMiddleware = require('../middlewares/authMiddleware');

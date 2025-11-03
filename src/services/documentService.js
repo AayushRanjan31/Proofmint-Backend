@@ -8,7 +8,7 @@ const getDocumentsByUser = async (userId) => {
       where: {userId},
       order: [['createdAt', 'DESC']],
     });
-  } catch (err) {
+  } catch {
     const error = new Error('Failed to fetch user documents');
     error.statusCode = 500;
     throw error;
@@ -23,7 +23,7 @@ const getDocument = async (userId) => {
     });
     if (!doc) return null;
     return doc;
-  } catch (err) {
+  } catch {
     const error = new Error('Cannot fetch document');
     error.statusCode = 500;
     throw error;
@@ -36,7 +36,7 @@ const verifyDocuments = async (documentId) => {
       where: {documentId},
     });
     return document;
-  } catch (err) {
+  } catch {
     const error = new Error('Cannot get the document');
     error.statusCode = 500;
     throw error;
@@ -51,20 +51,29 @@ const previewDocument = async (fileBuffer, mimetype) => {
 
     if (!isPdf) {
       const meta = await sharp(buffer).metadata();
-      const fontSize = Math.floor(Math.min(meta.width, meta.height) * 0.1);
-      const svg = `<svg width="${meta.width}" height="${meta.height}">
-      <rect width="100%" height="100%" fill="transparent"/>
-        <text 
-          x="50%" 
-          y="50%" 
-          font-size="${fontSize}" 
-          fill="black" 
-          fill-opacity="1" 
-          text-anchor="middle" 
-          dominant-baseline="middle">
-          ${watermark}
-        </text>
-      </svg>`;
+      const fontSize = Math.floor(Math.min(meta.width, meta.height) * 0.05);
+
+      const svg = `
+  <svg width="${meta.width}" height="${meta.height}">
+    <style>
+      text {
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+      }
+    </style>
+    <rect width="100%" height="100%" fill="transparent"/>
+    <text 
+      x="50%" 
+      y="50%" 
+      font-size="${fontSize}" 
+      fill="gray" 
+      fill-opacity="0.50" 
+      text-anchor="middle" 
+      dominant-baseline="middle">
+      ${watermark}
+    </text>
+  </svg>
+`;
 
       buffer = await sharp(buffer)
           .ensureAlpha()
@@ -75,24 +84,27 @@ const previewDocument = async (fileBuffer, mimetype) => {
     } else {
       const pdf = await PDFDocument.load(buffer);
       const font = await pdf.embedFont(StandardFonts.HelveticaBold);
+
       pdf.getPages().forEach((page) => {
         const {width, height} = page.getSize();
-        const size = Math.min(width, height) * 0.1;
+        const fontSize = Math.min(width, height) * 0.05;
+        const textWidth = font.widthOfTextAtSize(watermark, fontSize);
+        const textHeight = fontSize;
         page.drawText(watermark, {
-          x: width / 2 - size * 2,
-          y: height / 2,
-          size,
+          x: (width - textWidth) / 2,
+          y: (height - textHeight) / 2,
+          size: fontSize,
           font,
           color: rgb(0, 0, 0),
-          rotate: {degrees: 45},
-          opacity: 0.5,
+          opacity: 0.50,
         });
       });
+
       buffer = await pdf.save();
       mimetype = 'application/pdf';
     }
     return {buffer, mimetype};
-  } catch (err) {
+  } catch {
     const error = new Error('Cannot generate document preview');
     error.statusCode = 500;
     throw error;

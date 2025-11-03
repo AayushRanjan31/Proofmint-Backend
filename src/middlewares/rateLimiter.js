@@ -1,25 +1,27 @@
-const limiterStore = {}; // Storing request time
+const limiterStore = {};
 
-const rateLimiter = (req, res, next)=> {
-  const totalHr = 60 * 60 * 1000;
-  const maxReq = 100; // allowing 100 request
+const WINDOW_MS = process.env.RATE_LIMIT_WINDOW_MS || 10 * 60 * 1000;
+const MAX_REQUESTS = process.env.RATE_LIMIT_MAX || 200;
+
+const rateLimiter = (req, res, next) => {
   const ipAddr = req.ip;
   const currTime = Date.now();
-  // putting a empty array
+
   if (!limiterStore[ipAddr]) limiterStore[ipAddr] = [];
 
-  // filtering the array
-  limiterStore[ipAddr] = limiterStore[ipAddr].filter((preTime)=> currTime - preTime < totalHr );
+  limiterStore[ipAddr] = limiterStore[ipAddr].filter(
+      (preTime) => currTime - preTime < WINDOW_MS,
+  );
 
-  // checking the condition
-  if (limiterStore[ipAddr].length >= maxReq) {
+  if (limiterStore[ipAddr].length >= MAX_REQUESTS) {
     return res.status(429).json({
       status: false,
       message: 'Too many requests. Please try again later.',
     });
-  } else {
-    limiterStore[ipAddr].push(currTime); // pushing the  date
-    next();
   }
+
+  limiterStore[ipAddr].push(currTime);
+  next();
 };
+
 module.exports = rateLimiter;
