@@ -1,32 +1,28 @@
 const nodemailer = require("nodemailer");
-const config = require("../config/config");
 
 const transporter = nodemailer.createTransport({
-  host: "smtp.sendgrid.net",
-  port: 587,
-  secure: false, // use TLS
+  service: "SendGrid",
   auth: {
-    user: "apikey", // this is literally the word "apikey"
-    pass: config.SENDGRID_API_KEY, // your actual SendGrid API key
+    user: "apikey",
+    pass: process.env.SENDGRID_API_KEY,
   },
 });
 
 const sendEmail = async (to, subject, text, html = null) => {
   try {
     const info = await transporter.sendMail({
-      from: config.SENDGRID_FROM, // must be a verified sender in SendGrid
+      from: process.env.SENDGRID_FROM,
       to,
       subject,
       text,
       ...(html && { html }),
     });
-    console.log("✅ Email sent:", info.messageId);
+    console.log(`Email sent to ${to}`);
     return info;
   } catch (error) {
-    console.error("❌ Error sending email:", error);
+    console.error("SendGrid error:", error);
     throw new Error("Error sending email");
   }
 };
 
 module.exports = sendEmail;
-
