@@ -1,39 +1,25 @@
-const nodemailer = require('nodemailer');
+const nodemailer = require("nodemailer");
 const config = require('../config/config');
 
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false,
+  service: "SendGrid",
   auth: {
-    user: config.userEmail,   
-    pass: config.emailPassword,    
+    pass: config.SENDGRID_API_KEY,
   },
-  tls: {
-    rejectUnauthorized: false
-  },
-  connectionTimeout: 20000,
 });
 
-transporter.verify()
-  .then(() => console.log('Mail transporter verified'))
-  .catch(err => console.error('Mail transporter verification failed:', err));
-
-const sendEmail = async (to, subject, text, html) => {
+const sendEmail = async (to, subject, text, html = null) => {
   try {
     const info = await transporter.sendMail({
-      from: config.userEmail,
+      from: config.SENDGRID_FROM,
       to,
       subject,
       text,
-      html,
+      ...(html && { html }),
     });
-    console.log('Email sent:', info.messageId);
-    return { ok: true, info };
-  } catch (err) {
-    console.error('Nodemailer send error:', err);
-    if (err.response) console.error('Nodemailer response:', err.response);
-    return { ok: false, message: err.message || 'Error sending email', raw: err };
+    return info;
+  } catch (error) {
+    throw new Error("Error sending email");
   }
 };
 
