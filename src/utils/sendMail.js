@@ -1,10 +1,9 @@
-// services/sendEmailNodemailer.js
 const nodemailer = require('nodemailer');
 const config = require('../config/config');
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
-  port: 465,
+  port: 587,
   secure: true,
   auth: {
     user: config.userEmail,   
@@ -17,8 +16,8 @@ const transporter = nodemailer.createTransport({
 });
 
 transporter.verify()
-  .then(() => console.log('✅ Mail transporter verified'))
-  .catch(err => console.error('❌ Mail transporter verification failed:', err));
+  .then(() => console.log('Mail transporter verified'))
+  .catch(err => console.error('Mail transporter verification failed:', err));
 
 const sendEmail = async (to, subject, text, html) => {
   try {
