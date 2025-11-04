@@ -43,6 +43,11 @@ const verifyDocuments = async (documentId) => {
   }
 };
 
+const fs = require('fs');
+const path = require('path');
+const sharp = require('sharp');
+const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
+
 const previewDocument = async (fileBuffer, mimetype) => {
   try {
     const isPdf = mimetype === 'application/pdf';
@@ -50,14 +55,26 @@ const previewDocument = async (fileBuffer, mimetype) => {
     let buffer = fileBuffer;
 
     if (!isPdf) {
-      const meta = await sharp(buffer).metadata();
-      const fontSize = Math.floor(Math.min(meta.width, meta.height) * 0.05);
+      const fontPath = path.join(__dirname, 'fonts', 'DejaVuSans.ttf');
+      if (!fs.existsSync(fontPath)) {
+        console.warn('Font not found at', fontPath, '— SVG may fallback and show boxes.');
+      }
+      const fontBase64 = fs.existsSync(fontPath)
+        ? fs.readFileSync(fontPath).toString('base64')
+        : null;
 
+      const meta = await sharp(buffer).metadata();
+      const fontSize = Math.floor(Math.min(meta.width || 800, meta.height || 800) * 0.05);
+      const fontFace = fontBase64
+        ? `@font-face{font-family: "DejaVuEmbedded"; src: url("data:font/truetype;charset=utf-8;base64,${fontBase64}") format("truetype");}`
+        : '';
+      
       const svg = `
-  <svg width="${meta.width}" height="${meta.height}">
+  <svg xmlns="http://www.w3.org/2000/svg" width="${meta.width}" height="${meta.height}">
     <style>
+      ${fontFace}
       text {
-        font-family: Arial, sans-serif;
+        font-family: ${fontBase64 ? "'DejaVuEmbedded'" : "'sans-serif'"};
         font-weight: bold;
       }
     </style>
@@ -67,7 +84,7 @@ const previewDocument = async (fileBuffer, mimetype) => {
       y="50%" 
       font-size="${fontSize}" 
       fill="gray" 
-      fill-opacity="0.50" 
+      fill-opacity="0.5" 
       text-anchor="middle" 
       dominant-baseline="middle">
       ${watermark}
@@ -77,7 +94,7 @@ const previewDocument = async (fileBuffer, mimetype) => {
 
       buffer = await sharp(buffer)
           .ensureAlpha()
-          .composite([{input: Buffer.from(svg), gravity: 'center', blend: 'over'}])
+          .composite([{ input: Buffer.from(svg), gravity: 'center', blend: 'over' }])
           .png()
           .toBuffer();
       mimetype = 'image/png';
@@ -86,7 +103,7 @@ const previewDocument = async (fileBuffer, mimetype) => {
       const font = await pdf.embedFont(StandardFonts.HelveticaBold);
 
       pdf.getPages().forEach((page) => {
-        const {width, height} = page.getSize();
+        const { width, height } = page.getSize();
         const fontSize = Math.min(width, height) * 0.05;
         const textWidth = font.widthOfTextAtSize(watermark, fontSize);
         const textHeight = fontSize;
@@ -96,20 +113,22 @@ const previewDocument = async (fileBuffer, mimetype) => {
           size: fontSize,
           font,
           color: rgb(0, 0, 0),
-          opacity: 0.50,
+          opacity: 0.5,
         });
       });
 
       buffer = await pdf.save();
       mimetype = 'application/pdf';
     }
-    return {buffer, mimetype};
-  } catch {
+    return { buffer, mimetype };
+  } catch (err) {
+    console.error('previewDocument error:', err);
     const error = new Error('Cannot generate document preview');
     error.statusCode = 500;
     throw error;
   }
 };
+
 
 const documentRevoke = async (certificateId)=> {
   try {
