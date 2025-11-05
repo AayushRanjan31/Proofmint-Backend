@@ -4,6 +4,7 @@ const path = require('path');
 const Document = require('../models/document');
 const sharp = require('sharp');
 const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
+
 const getDocumentsByUser = async (userId) => {
   try {
     return await Document.findAll({
@@ -16,6 +17,7 @@ const getDocumentsByUser = async (userId) => {
     throw error;
   }
 };
+
 const getDocument = async (userId) => {
   try {
     const doc = await Document.findOne({
@@ -41,21 +43,41 @@ const verifyDocuments = async (documentId) => {
     throw error;
   }
 };
+
+// Helper: escape text for XML/SVG
+function escapeForXml(str = '') {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
 const previewDocument = async (fileBuffer, mimetype) => {
   try {
     const isPdf = mimetype === 'application/pdf';
     const watermark = 'Proof-mint Document';
 
     if (!isPdf) {
+      // IMAGE branch - use sharp + SVG overlay
       const fontPath = path.join(__dirname, 'fonts', 'DejaVuSans.ttf');
-      const fontBase64 = fs.existsSync(fontPath)
-        ? fs.readFileSync(fontPath).toString('base64')
-        : null;
+      let fontBase64 = null;
+      if (fs.existsSync(fontPath)) {
+        try {
+          fontBase64 = fs.readFileSync(fontPath).toString('base64');
+        } catch (e) {
+          console.error('Failed to read font file at', fontPath, e);
+          fontBase64 = null;
+        }
+      }
+
       const image = sharp(fileBuffer, { animated: false });
       const meta = await image.metadata();
       const width = meta.width || 1024;
       const height = meta.height || 768;
       const MAX_DIM = 4000;
+
       let pipeline = image;
       if (Math.max(width, height) > MAX_DIM) {
         const scale = MAX_DIM / Math.max(width, height);
@@ -63,36 +85,53 @@ const previewDocument = async (fileBuffer, mimetype) => {
           fit: 'inside',
         });
       }
-      const fontSize = Math.max(24, Math.floor(Math.min(width, height) * 0.06));
+
+      // recompute metadata after possible resize to ensure SVG matches final size
+      const resizedMeta = await pipeline.metadata();
+      const finalWidth = resizedMeta.width || width;
+      const finalHeight = resizedMeta.height || height;
+
+      const fontSize = Math.max(24, Math.floor(Math.min(finalWidth, finalHeight) * 0.06));
 
       const fontFace = fontBase64
-        ? `@font-face{font-family: "DejaVuEmbedded"; src: url("data:font/truetype;charset=utf-8;base64,${fontBase64}") format("truetype");}`
+        ? `@font-face{font-family: 'DejaVuEmbedded'; src: url("data:font/truetype;charset=utf-8;base64,${fontBase64}") format("truetype");}`
         : '';
+
+      // ensure watermark text is XML-escaped
+      const escapedWatermark = escapeForXml(watermark);
+
+      // SVG canvas exactly the same size as the image - avoids any tiling/repeat issues
       const svg = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+        <svg xmlns="http://www.w3.org/2000/svg" width="${finalWidth}" height="${finalHeight}" viewBox="0 0 ${finalWidth} ${finalHeight}" preserveAspectRatio="xMidYMid meet">
           <style>
             ${fontFace}
             .watermark {
-              font-family: ${fontBase64 ? "'DejaVuEmbedded'" : "'sans-serif'"};
+              font-family: ${fontBase64 ? "'DejaVuEmbedded', 'sans-serif'" : "'sans-serif'"};
               font-weight: 700;
               font-size: ${fontSize}px;
               fill: #000000;
               fill-opacity: 0.12;
+              dominant-baseline: middle;
+              text-anchor: middle;
             }
           </style>
-          <g transform="translate(${width / 2}, ${height / 2}) rotate(-30)">
-            <text class="watermark" x="0" y="0" text-anchor="middle" dominant-baseline="middle">${watermark}</text>
+          <rect width="100%" height="100%" fill="transparent"/>
+          <g transform="translate(${finalWidth / 2}, ${finalHeight / 2}) rotate(-30)">
+            <text class="watermark" x="0" y="0">${escapedWatermark}</text>
           </g>
         </svg>
       `;
+
+      // Composite SVG exactly at top-left (0,0) so it overlays once, centered by the SVG itself.
       const outBuffer = await pipeline
         .ensureAlpha()
-        .composite([{ input: Buffer.from(svg), blend: 'over' }])
+        .composite([{ input: Buffer.from(svg), left: 0, top: 0, blend: 'over' }])
         .toFormat('png')
         .toBuffer();
 
       return { buffer: outBuffer, mimetype: 'image/png' };
     } else {
+      // PDF branch - use pdf-lib
       const pdf = await PDFDocument.load(fileBuffer);
       const font = await pdf.embedFont(StandardFonts.HelveticaBold);
 
@@ -116,11 +155,13 @@ const previewDocument = async (fileBuffer, mimetype) => {
       return { buffer: outBuffer, mimetype: 'application/pdf' };
     }
   } catch (err) {
+    console.error('previewDocument error:', err);
     const error = new Error('Cannot generate document preview');
     error.statusCode = 500;
     throw error;
   }
 };
+
 const documentRevoke = async (certificateId) => {
   try {
     const documentRecord = await Document.findOne({ where: { id: certificateId } });
