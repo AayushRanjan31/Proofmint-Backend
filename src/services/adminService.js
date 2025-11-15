@@ -1,10 +1,10 @@
 const User = require('../models/user');
 const Document = require('../models/document');
 
-const getAllTheUsers = async ()=> {
+const getAllTheUsers = async () => {
   try {
     const users = await User.findAll();
-    const userData = users.map((ele)=> {
+    const userData = users.map((ele) => {
       const user = {
         id: ele.id,
         firstName: ele.firstName,
@@ -17,14 +17,14 @@ const getAllTheUsers = async ()=> {
     });
 
     return userData;
-  } catch (err) {
+  } catch {
     const error = new Error('Failed to fetch users');
     error.statusCode = 500;
     throw error;
   }
 };
 
-const deleteAUser = async (userId)=> {
+const deleteAUser = async (userId) => {
   try {
     const user = await User.findOne({where: {id: userId}});
     if (!user) {
@@ -34,13 +34,14 @@ const deleteAUser = async (userId)=> {
     }
     await User.destroy({where: {id: userId}});
     return true;
-  } catch (err) {
-    err.statusCode = err.statusCode || 500;
-    throw err;
+  } catch {
+    const error = new Error('Failed to delete user');
+    error.statusCode = 500;
+    throw error;
   }
 };
 
-const getAUser = async (id)=> {
+const getAUser = async (id) => {
   try {
     const user = await User.findOne({where: {id}});
     if (!user) {
@@ -49,16 +50,17 @@ const getAUser = async (id)=> {
       throw error;
     }
     return user;
-  } catch (err) {
-    err.statusCode = err.statusCode || 500;
-    throw err;
+  } catch {
+    const error = new Error('Failed to fetch user');
+    error.statusCode = 500;
+    throw error;
   }
 };
 
-const allDocument = async ()=> {
+const allDocument = async () => {
   try {
     const allDocs = await Document.findAll();
-    const documents = allDocs.map((ele)=> {
+    const documents = allDocs.map((ele) => {
       const obj = {
         certificateId: ele.id,
         status: ele.status,
@@ -71,27 +73,40 @@ const allDocument = async ()=> {
       return obj;
     });
     return documents;
-  } catch (err) {
+  } catch {
     const error = new Error('Failed to fetch documents');
     error.statusCode = 500;
     throw error;
   }
 };
 
-const documentDelete = async (certificateId)=> {
+const documentDelete = async (certificateId) => {
   try {
-    const document = await Document.findOne({where: {id: certificateId}});
+    const document = await Document.findOne({
+      where: {id: certificateId},
+    });
     if (!document) {
-      const error = new Error('There is no Document related to this certificateId');
+      const error = new Error(
+          'There is no Document related to this certificateId',
+      );
       error.statusCode = 404;
       throw error;
     }
-    const deleteDocs = await Document.destroy({where: {id: certificateId}});
+    const deleteDocs = await Document.destroy({
+      where: {id: certificateId},
+    });
     return deleteDocs;
-  } catch (err) {
-    err.statusCode = err.statusCode || 500;
-    throw err;
+  } catch {
+    const error = new Error('Failed to delete document');
+    error.statusCode = 500;
+    throw error;
   }
 };
 
-module.exports = {getAllTheUsers, deleteAUser, getAUser, allDocument, documentDelete};
+module.exports = {
+  getAllTheUsers,
+  deleteAUser,
+  getAUser,
+  allDocument,
+  documentDelete,
+};

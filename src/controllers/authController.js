@@ -1,10 +1,20 @@
-const {loginService, signupService, passwordUpdate, passwordForgot, verifyThroughOpt, passwordChange} = require('../services/authService');
-const {inValidUser, missingCredentials, passwordSort} = require('../utils/authError');
+const {
+  loginService,
+  signupService,
+  passwordUpdate,
+  passwordForgot,
+  verifyThroughOpt,
+  passwordChange,
+} = require('../services/authService');
+const {
+  inValidUser,
+  missingCredentials,
+  passwordSort,
+} = require('../utils/authError');
 const token = require('../utils/tokenGenerate');
 const {v4: uuid} = require('uuid');
-const config = require('../config/config');
 
-const loginController = async (req, res, next)=> {
+const loginController = async (req, res, next) => {
   try {
     const {email, password} = req.body;
 
@@ -18,7 +28,7 @@ const loginController = async (req, res, next)=> {
 
     res.cookie('token', userToken, {
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      httpOnly: config.cookies == 'development',
+      httpOnly: true,
       sameSite: 'none',
       secure: true,
     });
@@ -26,6 +36,7 @@ const loginController = async (req, res, next)=> {
     res.status(200).json({
       status: true,
       message: 'Login successfully',
+      token: userToken,
       userData: {
         email: validUser.email,
         id: validUser.id,
@@ -41,15 +52,24 @@ const loginController = async (req, res, next)=> {
   }
 };
 
-const signupController = async (req, res, next)=> {
+const signupController = async (req, res, next) => {
   try {
     const {firstName, email, password, lastName, number} = req.body;
 
-    if (!firstName || !email || !password || !lastName || !number) return missingCredentials(res);
+    if (!firstName || !email || !password || !lastName || !number) {
+      return missingCredentials(res);
+    }
     if (password.length < 8) return passwordSort(res);
 
     const uniqueId = uuid();
-    const userDetails = await signupService(uniqueId, email, password, firstName, lastName, number);
+    const userDetails = await signupService(
+        uniqueId,
+        email,
+        password,
+        firstName,
+        lastName,
+        number,
+    );
 
     res.status(201).json({
       status: true,
@@ -68,7 +88,7 @@ const signupController = async (req, res, next)=> {
   }
 };
 
-const logoutController = (req, res, next)=> {
+const logoutController = (req, res, next) => {
   try {
     res.clearCookie('token', {
       httpOnly: true,
@@ -108,7 +128,7 @@ const updatePassword = async (req, res, next) => {
   }
 };
 
-const forgotPassword = async (req, res, next)=> {
+const forgotPassword = async (req, res, next) => {
   try {
     const {email} = req.body;
     if (!email) {
@@ -170,5 +190,12 @@ const changePassword = async (req, res, next) => {
   }
 };
 
-module.exports = {loginController, signupController,
-  logoutController, updatePassword, forgotPassword, verifyOpt, changePassword};
+module.exports = {
+  loginController,
+  signupController,
+  logoutController,
+  updatePassword,
+  forgotPassword,
+  verifyOpt,
+  changePassword,
+};

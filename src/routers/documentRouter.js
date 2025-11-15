@@ -1,9 +1,13 @@
 const express = require('express');
-const router = express.Router();
-const {getUserDocsController, getADocument, verifyDocument, revokeDocument} = require('../controllers/documentController');
+const router = express.router();
+const {
+  getUserDocsController,
+  getADocument,
+  verifyDocument,
+  revokeDocument,
+} = require('../controllers/documentController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const roleMiddleware = require('../middlewares/roleMiddleware');
-
 
 // Get all docs for logged-in user
 router.get('/', authMiddleware, getUserDocsController);

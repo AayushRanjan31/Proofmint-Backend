@@ -20,17 +20,20 @@ app.use(logger);
 app.use(rateLimiter);
 
 // cors
-app.use(cors({
-  origin: [
-    'http://localhost:5174',
-    'http://localhost:5173',
-    'http://localhost:5175',
-    'https://ac4087f1a82c.ngrok-free.app',
-    "*"
-  ],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-}));
+app.use(
+    cors({
+      origin: [
+        'http://localhost:5174',
+        'http://localhost:5173',
+        'http://localhost:5175',
+        'https://ac4087f1a82c.ngrok-free.app',
+        'https://proofmint.up.railway.app',
+      ],
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+    }),
+);
 
 // routers
 app.use('/api/v1/auth', authRouter);

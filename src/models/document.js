@@ -1,7 +1,7 @@
 const {DataTypes} = require('sequelize');
 const User = require('./user');
 const sequelize = require('./db');
-const Document = sequelize.define(
+const document = sequelize.define(
     'Document',
     {
       id: {
@@ -49,7 +49,11 @@ const Document = sequelize.define(
     },
     {timestamps: true},
 );
-User.hasMany(Document, {foreignKey: 'userId'});
-Document.belongsTo(User, {foreignKey: 'userId'});
 
-module.exports = Document;
+
+User.hasMany(document, {foreignKey: 'userId'});
+
+
+document.belongsTo(User, {foreignKey: 'userId'});
+
+module.exports = document;

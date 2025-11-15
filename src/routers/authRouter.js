@@ -1,7 +1,15 @@
 const express = require('express');
-const {signupController, loginController, logoutController, updatePassword, forgotPassword, verifyOpt, changePassword} = require('../controllers/authController');
+const {
+  signupController,
+  loginController,
+  logoutController,
+  updatePassword,
+  forgotPassword,
+  verifyOpt,
+  changePassword,
+} = require('../controllers/authController');
 const authMiddleware = require('../middlewares/authMiddleware');
-const router = express.Router();
+const router = express.router();
 
 router.post('/signup', signupController);
 router.post('/login', loginController);

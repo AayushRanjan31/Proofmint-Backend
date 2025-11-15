@@ -38,7 +38,7 @@ const uploadService = async (buffer, mimeType) => {
   }
 };
 
-const createDocument = async (metaData)=> {
+const createDocument = async (metaData) => {
   try {
     const createNewDocument = await Document.create({
       id: metaData.uniqueId,
@@ -51,7 +51,7 @@ const createDocument = async (metaData)=> {
       qrCode: metaData.qrCode,
     });
     return createNewDocument;
-  } catch (err) {
+  } catch {
     const error = new Error('Failed to create document');
     error.statusCode = 500;
     throw error;
@@ -72,7 +72,9 @@ const putStampImage = async (userId, certificateId, newUrl, previewUrl) => {
         },
     );
     if (count === 0) {
-      const error = new Error('No document found for this userId + certificateId');
+      const error = new Error(
+          'No document found for this userId + certificateId',
+      );
       error.statusCode = 404;
       throw error;
     }

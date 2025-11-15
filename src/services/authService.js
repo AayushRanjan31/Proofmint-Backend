@@ -75,10 +75,10 @@ const passwordForgot = async (email)=> {
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    await user.update({otp: otp},{where: {email}});
+    await user.update({otp: otp}, {where: {email}});
     await sendEmail(getUser.email, 'Your OTP for Password Reset', `Your OTP is: ${otp}`);
     setTimeout(async () => {
-      await user.update({otp: null},{where: {email, otp: otp}});
+      await user.update({otp: null}, {where: {email, otp: otp}});
     }, 10 * 60 * 1000);
     return true;
   } catch (err) {

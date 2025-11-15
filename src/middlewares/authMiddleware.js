@@ -1,10 +1,18 @@
-const jwt=require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 const config = require('../config/config');
 
 const authMiddleware = async (req, res, next) => {
   try {
-    const token = req.cookies.token;
-    if (!token) throw new Error({status: false, message: 'Unauthorized user'});
+    let token = req.cookies.token;
+    if (!token) {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      }
+    }
+    if (!token) {
+      throw new Error({status: false, message: 'Unauthorized user'});
+    }
     const decoded = await jwt.verify(token, config.jwtKey);
     req.user = decoded;
     next();
@@ -13,4 +21,4 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
-module.exports=authMiddleware;
+module.exports = authMiddleware;

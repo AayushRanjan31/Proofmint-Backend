@@ -8,7 +8,7 @@ const getDocumentsByUser = async (userId) => {
       where: {userId},
       order: [['createdAt', 'DESC']],
     });
-  } catch (err) {
+  } catch {
     const error = new Error('Failed to fetch user documents');
     error.statusCode = 500;
     throw error;
@@ -23,7 +23,7 @@ const getDocument = async (userId) => {
     });
     if (!doc) return null;
     return doc;
-  } catch (err) {
+  } catch {
     const error = new Error('Cannot fetch document');
     error.statusCode = 500;
     throw error;
@@ -36,7 +36,7 @@ const verifyDocuments = async (documentId) => {
       where: {documentId},
     });
     return document;
-  } catch (err) {
+  } catch {
     const error = new Error('Cannot get the document');
     error.statusCode = 500;
     throw error;
@@ -51,7 +51,9 @@ const previewDocument = async (fileBuffer, mimetype) => {
 
     if (!isPdf) {
       const meta = await sharp(buffer).metadata();
-      const fontSize = Math.floor(Math.min(meta.width, meta.height) * 0.1);
+      const fontSize = Math.floor(
+          Math.min(meta.width, meta.height) * 0.1,
+      );
       const svg = `<svg width="${meta.width}" height="${meta.height}">
       <rect width="100%" height="100%" fill="transparent"/>
         <text 
@@ -68,7 +70,13 @@ const previewDocument = async (fileBuffer, mimetype) => {
 
       buffer = await sharp(buffer)
           .ensureAlpha()
-          .composite([{input: Buffer.from(svg), gravity: 'center', blend: 'over'}])
+          .composite([
+            {
+              input: Buffer.from(svg),
+              gravity: 'center',
+              blend: 'over',
+            },
+          ])
           .png()
           .toBuffer();
       mimetype = 'image/png';
@@ -92,18 +100,22 @@ const previewDocument = async (fileBuffer, mimetype) => {
       mimetype = 'application/pdf';
     }
     return {buffer, mimetype};
-  } catch (err) {
+  } catch {
     const error = new Error('Cannot generate document preview');
     error.statusCode = 500;
     throw error;
   }
 };
 
-const documentRevoke = async (certificateId)=> {
+const documentRevoke = async (certificateId) => {
   try {
-    const getDocument = await Document.findOne({where: {id: certificateId}});
+    const getDocument = await Document.findOne({
+      where: {id: certificateId},
+    });
     if (!getDocument) {
-      const error = new Error('There is no document related to this certificate');
+      const error = new Error(
+          'There is no document related to this certificate',
+      );
       error.statusCode = 404;
       throw error;
     }
@@ -117,11 +129,17 @@ const documentRevoke = async (certificateId)=> {
       throw error;
     }
     return getDocument;
-  } catch (err) {
-    err.statusCode = err.statusCode || 500;
-    throw err;
+  } catch {
+    const error = new Error('Cannot revoke document');
+    error.statusCode = 500;
+    throw error;
   }
 };
 
-module.exports = {getDocumentsByUser,
-  getDocument, verifyDocuments, previewDocument, documentRevoke};
+module.exports = {
+  getDocumentsByUser,
+  getDocument,
+  verifyDocuments,
+  previewDocument,
+  documentRevoke,
+};
