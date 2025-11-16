@@ -1,13 +1,33 @@
 const {DataTypes} = require('sequelize');
 const sequelize = require('./db');
 
-const user = sequelize.define(
+const User = sequelize.define(
     'User',
     {
       id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true,
+      },
+      email: {
         type: DataTypes.STRING,
         allowNull: false,
-        primaryKey: true,
+        unique: true,
+        validate: {
+          isEmail: true,
+        },
+      },
+      password_hash: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      role: {
+        type: DataTypes.ENUM('admin', 'issuer', 'public'),
+        defaultValue: 'issuer',
+      },
+      is_active: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
       },
       firstName: {
         type: DataTypes.STRING,
@@ -29,32 +49,10 @@ const user = sequelize.define(
         type: DataTypes.STRING,
         defaultValue: null,
       },
-      email: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
-        validate: {
-          isEmail: true,
-        },
-      },
-      password: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      role: {
-        type: DataTypes.ENUM('user', 'admin'),
-        defaultValue: 'user',
-      },
     },
     {
-      timestamps: true, // disables Sequelize auto timestamps (createdAt/updatedAt)
+      timestamps: true,
     },
 );
 
-
-user.hasMany(user, {foreignKey: 'id'});
-
-
-user.belongsTo(user, {foreignKey: 'id'});
-
-module.exports = user;
+module.exports = User;

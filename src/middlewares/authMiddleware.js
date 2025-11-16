@@ -11,13 +11,15 @@ const authMiddleware = async (req, res, next) => {
       }
     }
     if (!token) {
-      throw new Error({status: false, message: 'Unauthorized user'});
+      const error = new Error('Unauthorized user');
+      error.statusCode = 401;
+      throw error;
     }
     const decoded = await jwt.verify(token, config.jwtKey);
     req.user = decoded;
     next();
-  } catch {
-    res.status(401).json({status: false, message: 'Unauthorized user'});
+  } catch (error) {
+    next(error);
   }
 };
 

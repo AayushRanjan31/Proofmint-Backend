@@ -1,59 +1,72 @@
 const {DataTypes} = require('sequelize');
 const User = require('./user');
 const sequelize = require('./db');
-const document = sequelize.define(
+
+const Document = sequelize.define(
     'Document',
     {
       id: {
-        type: DataTypes.STRING,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
       title: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      issuer: {
+      recipient_name: {
         type: DataTypes.STRING,
+        allowNull: true,
       },
-      expiry: {
-        type: DataTypes.DATE,
-      },
-      documentId: {
+      recipient_email: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
+        validate: {
+          isEmail: true,
+        },
       },
-      fileUrl: {
+      recipient_phone: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
-      qrCode: {
+      description: {
         type: DataTypes.TEXT,
-        defaultValue: null,
+        allowNull: true,
       },
-      preview: {
-        type: DataTypes.STRING,
-        defaultValue: null,
-      },
-      status: {
-        type: DataTypes.ENUM('uploaded', 'stamped', 'expired'),
-        defaultValue: 'uploaded',
-      },
-      userId: {
-        type: DataTypes.STRING,
+      issuer_user_id: {
+        type: DataTypes.UUID,
         allowNull: false,
         references: {
           model: User,
           key: 'id',
         },
       },
+      status: {
+        type: DataTypes.ENUM('draft', 'issued', 'revoked'),
+        defaultValue: 'draft',
+      },
+      issue_date: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+      expiry_date: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+      revoke_reason: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      documentId: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+      },
     },
     {timestamps: true},
 );
 
+User.hasMany(Document, {foreignKey: 'issuer_user_id'});
+Document.belongsTo(User, {foreignKey: 'issuer_user_id'});
 
-User.hasMany(document, {foreignKey: 'userId'});
-
-
-document.belongsTo(User, {foreignKey: 'userId'});
-
-module.exports = document;
+module.exports = Document;
