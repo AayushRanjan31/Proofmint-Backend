@@ -18,4 +18,6 @@ router.post('/update/password', authMiddleware, updatePassword);
 router.post('/forgot/password', forgotPassword);
 router.post('/verify/otp', verifyOpt);
 router.post('/change/password', changePassword);
+router.post('/signup/otp', sendSignupOtp);
+router.post('/signup/otp/verify', verifySignupOtp);
 module.exports = router;
